@@ -1,0 +1,153 @@
+/* Lessons */
+.lessons {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.lessons-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.lessons-header h1 {
+  margin: 0 0 0.5rem 0;
+  font-size: 2rem;
+}
+
+.lessons-header p {
+  margin: 0;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.lesson-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.lesson-track {
+  padding: 2rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.track-header {
+  margin-bottom: 1.5rem;
+}
+
+.track-header h2 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.5rem;
+}
+
+.track-header p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.lesson-card {
+  display: block;
+  padding: 1.25rem;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--color-text);
+  transition: all 0.2s;
+}
+
+.lesson-card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.lesson-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.lesson-header h4 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.difficulty-badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius);
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.lesson-description {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.lesson-meta {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.completed-badge {
+  color: var(--color-success);
+}
+
+.lessons-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding: 2rem;
+  color: var(--color-text-muted);
+}
+
+.lessons-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+/* Lesson Content Page */
+.lesson-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-link {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+}
+
+.back-link:hover {
+  color: var(--color-primary);
+}
+
+.lesson-sandbox-link {
+  margin-top: 2rem;
+  padding: 2rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-lg);
+  text-align: center;
+}
+
+.lesson-sandbox-link p {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-muted);
+}

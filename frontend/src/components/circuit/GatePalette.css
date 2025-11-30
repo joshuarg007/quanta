@@ -1,0 +1,103 @@
+/* Gate Palette */
+.gate-palette {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+}
+
+.palette-title {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gate-category {
+  margin-bottom: 1.5rem;
+}
+
+.category-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gate-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.gate-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 0.5rem;
+  background: var(--color-bg-tertiary);
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.gate-button:hover {
+  background: var(--color-bg);
+  border-color: var(--gate-color, var(--color-border));
+}
+
+.gate-button.selected {
+  background: var(--color-bg);
+  box-shadow: 0 0 12px var(--gate-color, var(--color-primary-glow));
+}
+
+.gate-symbol {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.gate-name {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+}
+
+.selected-gate-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius);
+}
+
+.selected-gate-info h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+.selected-gate-info p {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.deselect-btn {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.deselect-btn:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+}

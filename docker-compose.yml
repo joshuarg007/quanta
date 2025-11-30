@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  # Frontend - React + Vite
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  # Backend - FastAPI + Qiskit
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      - QUANTA_DEBUG=true
+      - QUANTA_DATABASE_URL=postgresql+asyncpg://quanta:quanta@postgres:5432/quanta
+    depends_on:
+      - postgres
+
+  # Database - PostgreSQL
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=quanta
+      - POSTGRES_PASSWORD=quanta
+      - POSTGRES_DB=quanta
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -1,0 +1,132 @@
+/* Circuit Builder */
+.circuit-builder {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: auto;
+}
+
+.circuit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.qubit-labels {
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  left: 0;
+  z-index: 1;
+}
+
+.qubit-label {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-secondary);
+}
+
+.qubit-label sub {
+  font-size: 0.7em;
+}
+
+.circuit-wires {
+  display: flex;
+  flex-direction: column;
+}
+
+.circuit-row {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  position: relative;
+}
+
+.wire {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border);
+  z-index: 0;
+}
+
+.circuit-cell {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  transition: all 0.15s;
+}
+
+.circuit-cell.clickable {
+  cursor: pointer;
+}
+
+.circuit-cell.clickable:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.circuit-cell.has-gate {
+  cursor: pointer;
+}
+
+.circuit-cell.has-gate:hover {
+  transform: scale(1.1);
+}
+
+.gate {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.gate:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.step-labels {
+  display: flex;
+  margin-top: 0.5rem;
+  padding-left: 60px;
+}
+
+.step-label {
+  width: 48px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.circuit-hint {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-primary-glow);
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
