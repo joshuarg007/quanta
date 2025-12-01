@@ -5,6 +5,7 @@ import './App.css';
 // Pages
 import { Sandbox } from './components/sandbox/Sandbox';
 import { Lessons } from './components/lessons/Lessons';
+import { LessonViewer } from './components/lessons/LessonViewer';
 import { Home } from './components/Home';
 
 const queryClient = new QueryClient();
@@ -42,7 +43,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/sandbox" element={<Sandbox />} />
               <Route path="/learn" element={<Lessons />} />
-              <Route path="/learn/:lessonId" element={<Lessons />} />
+              <Route path="/learn/:trackId/:lessonId" element={<LessonViewer />} />
             </Routes>
           </main>
         </div>

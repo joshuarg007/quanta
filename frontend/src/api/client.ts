@@ -72,33 +72,104 @@ export const circuitApi = {
 };
 
 // Curriculum API
-export interface Lesson {
+export interface LessonMeta {
   id: string;
   title: string;
+  track: string;
   description: string;
-  category: string;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedMinutes: number;
+  duration: number;
   prerequisites: string[];
 }
 
-export interface LessonContent {
+export interface TextContent {
+  title: string;
+  body: string;
+}
+
+export interface CircuitContent {
+  title?: string;
+  description: string;
+  template: {
+    numQubits: number;
+    gates: Array<{
+      type: string;
+      qubit: number;
+      controlQubit?: number;
+      step: number;
+      parameter?: number;
+    }>;
+  };
+  expectedOutput?: string;
+}
+
+export interface ExerciseContent {
+  title: string;
+  description: string;
+  hint?: string;
+  template: {
+    numQubits: number;
+    gates: Array<{
+      type: string;
+      qubit: number;
+      controlQubit?: number;
+      step: number;
+      parameter?: number;
+    }>;
+  };
+  solution?: {
+    numQubits: number;
+    gates: Array<{
+      type: string;
+      qubit: number;
+      controlQubit?: number;
+      step: number;
+      parameter?: number;
+    }>;
+  };
+}
+
+export interface QuizContent {
+  question: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export interface LessonSection {
+  type: 'hero' | 'text' | 'callout' | 'comparison' | 'math' | 'circuit' | 'exercise' | 'code' | 'bloch' | 'quiz' | 'summary' | 'sandbox';
+  content: Record<string, unknown>;
+}
+
+export interface LessonFull {
   id: string;
-  sections: {
-    type: 'text' | 'circuit' | 'exercise' | 'quiz';
-    content: unknown;
-  }[];
+  title: string;
+  track: string;
+  sections: LessonSection[];
+}
+
+export interface Track {
+  id: string;
+  title: string;
+  description: string;
+  lessons: LessonMeta[];
 }
 
 export const curriculumApi = {
   // Get all lessons
-  listLessons: async (): Promise<Lesson[]> => {
+  listLessons: async (): Promise<LessonMeta[]> => {
     const response = await apiClient.get('/api/curriculum/lessons');
     return response.data;
   },
 
+  // Get tracks with lessons
+  getTracks: async (): Promise<Track[]> => {
+    const response = await apiClient.get('/api/curriculum/tracks');
+    return response.data;
+  },
+
   // Get lesson content
-  getLesson: async (id: string): Promise<LessonContent> => {
+  getLesson: async (id: string): Promise<LessonFull> => {
     const response = await apiClient.get(`/api/curriculum/lessons/${id}`);
     return response.data;
   },
@@ -109,7 +180,7 @@ export const curriculumApi = {
   },
 
   // Get user progress
-  getProgress: async (): Promise<Record<string, boolean>> => {
+  getProgress: async (): Promise<Record<string, { completed: boolean }>> => {
     const response = await apiClient.get('/api/curriculum/progress');
     return response.data;
   },

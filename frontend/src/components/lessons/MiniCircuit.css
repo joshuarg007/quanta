@@ -1,0 +1,166 @@
+/* Mini Circuit Styles */
+.mini-circuit {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1rem;
+}
+
+.mini-circuit-grid {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.qubit-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-top: 12px;
+}
+
+.qubit-label {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  padding-right: 0.5rem;
+}
+
+.circuit-area {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.qubit-wire {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.wire-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-border);
+}
+
+.gate-slot {
+  width: 56px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.gate-box {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  cursor: default;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.control-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--color-text);
+  border-radius: 50%;
+}
+
+.control-line {
+  position: absolute;
+  width: 2px;
+  background: var(--color-text);
+  z-index: 0;
+}
+
+/* Controls */
+.mini-circuit-controls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Results */
+.mini-results {
+  border-top: 1px solid var(--color-border);
+  padding-top: 1rem;
+}
+
+.mini-results h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.result-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.result-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.result-state {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  min-width: 60px;
+}
+
+.result-bar-container {
+  flex: 1;
+  height: 20px;
+  background: var(--color-bg-tertiary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.result-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.result-count {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  min-width: 100px;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mini-circuit-grid {
+    overflow-x: scroll;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .result-count {
+    min-width: 80px;
+    font-size: 0.75rem;
+  }
+}

@@ -1,0 +1,966 @@
+/* ============================================================
+   SECTION BASE STYLES
+   ============================================================ */
+.section {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.section h2 {
+  margin: 0 0 1.5rem 0;
+  font-size: 1.5rem;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   HERO SECTION
+   ============================================================ */
+.section-hero {
+  background: linear-gradient(135deg, var(--color-bg-secondary), var(--color-bg-tertiary));
+  border: none;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 1rem;
+}
+
+.hero-title {
+  font-size: 2.5rem;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, var(--color-text), var(--color-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  margin: 0 0 1rem 0;
+  font-family: var(--font-mono);
+}
+
+.hero-description {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  max-width: 600px;
+  margin: 0 auto 2rem auto;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.hero-duration {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-muted);
+}
+
+.meta-icon {
+  font-size: 1.2rem;
+}
+
+.hero-objectives {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem 2rem;
+  max-width: 500px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.hero-objectives h4 {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hero-objectives ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-objectives li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--color-text);
+}
+
+.objective-check {
+  color: var(--color-primary);
+  font-size: 1.1rem;
+}
+
+/* ============================================================
+   TEXT SECTION
+   ============================================================ */
+.section-text {
+  line-height: 1.8;
+}
+
+.text-content {
+  color: var(--color-text);
+}
+
+.lesson-paragraph {
+  margin: 0 0 1.25rem 0;
+}
+
+.lesson-paragraph:last-child {
+  margin-bottom: 0;
+}
+
+.lesson-paragraph strong {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.lesson-paragraph code {
+  background: var(--color-bg-tertiary);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  color: var(--color-accent);
+}
+
+.text-list {
+  margin: 1rem 0;
+}
+
+.text-list .list-title {
+  margin: 0 0 0.5rem 0;
+  font-weight: 600;
+}
+
+.text-list ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.text-list li {
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================================
+   CALLOUT SECTION
+   ============================================================ */
+.section-callout {
+  padding: 1.25rem 1.5rem;
+  border-left: 4px solid;
+}
+
+.callout-info {
+  border-color: var(--color-primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.callout-warning {
+  border-color: var(--color-warning);
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.callout-tip {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.callout-danger {
+  border-color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.callout-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.callout-icon {
+  font-size: 1.2rem;
+}
+
+.callout-title {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.callout-body {
+  margin: 0;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   COMPARISON SECTION
+   ============================================================ */
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.comparison-side {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.comparison-left {
+  border: 2px solid var(--color-text-muted);
+}
+
+.comparison-right {
+  border: 2px solid var(--color-primary);
+}
+
+.comparison-side h4 {
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+.comparison-right h4 {
+  color: var(--color-primary);
+}
+
+.comparison-side ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.comparison-side li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-side li:last-child {
+  border-bottom: none;
+}
+
+.comparison-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 0;
+}
+
+.comparison-divider span {
+  background: var(--color-bg-tertiary);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================
+   MATH SECTION
+   ============================================================ */
+.section-math {
+  background: var(--color-bg);
+}
+
+.math-description {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text);
+}
+
+.equations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.equation-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius);
+}
+
+.equation-label {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.equation-latex {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--color-accent);
+}
+
+/* ============================================================
+   CODE SECTION
+   ============================================================ */
+.section-code {
+  padding: 1.5rem;
+}
+
+.code-description {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-muted);
+}
+
+.code-container {
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.code-language {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.code-copy {
+  padding: 0.25rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.code-copy:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.code-block {
+  margin: 0;
+  padding: 1rem;
+  background: var(--color-bg);
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.code-block code {
+  color: var(--color-text);
+}
+
+.code-output {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+.output-label {
+  color: var(--color-text-muted);
+  margin-right: 0.5rem;
+}
+
+.code-output code {
+  color: var(--color-success);
+}
+
+.code-explanation {
+  margin: 1rem 0 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   CIRCUIT SECTION
+   ============================================================ */
+.section-circuit {
+  padding: 1.5rem;
+}
+
+.circuit-description {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-muted);
+}
+
+.expected-output {
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg);
+  border-left: 3px solid var(--color-primary);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.expected-output strong {
+  color: var(--color-text);
+}
+
+.circuit-hints {
+  margin-top: 1rem;
+}
+
+.circuit-hints details {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+}
+
+.circuit-hints summary {
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.circuit-hints ul {
+  margin: 0.75rem 0 0 0;
+  padding-left: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   EXERCISE SECTION
+   ============================================================ */
+.section-exercise {
+  border-color: var(--color-warning);
+  border-width: 2px;
+}
+
+.exercise-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.exercise-header h2 {
+  margin: 0;
+}
+
+.exercise-difficulty {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+  text-transform: uppercase;
+}
+
+.exercise-description {
+  margin: 0 0 1rem 0;
+  color: var(--color-text);
+}
+
+.exercise-objectives {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.exercise-objectives h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.exercise-objectives ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.exercise-workspace {
+  margin-bottom: 1rem;
+}
+
+.exercise-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.hint-box,
+.solution-box {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.hint-box {
+  border-left: 3px solid var(--color-warning);
+}
+
+.hint-box strong {
+  color: var(--color-warning);
+}
+
+.solution-box {
+  border-left: 3px solid var(--color-success);
+}
+
+.solution-box strong {
+  color: var(--color-success);
+}
+
+.success-message {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1rem 0;
+}
+
+/* ============================================================
+   BLOCH SECTION
+   ============================================================ */
+.section-bloch {
+  text-align: center;
+}
+
+.bloch-description {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-muted);
+}
+
+.bloch-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.bloch-canvas {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.bloch-controls {
+  background: var(--color-bg);
+  padding: 1rem;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 400px;
+}
+
+.control-group {
+  margin-bottom: 1rem;
+}
+
+.control-group label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+
+.preset-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   QUIZ SECTION
+   ============================================================ */
+.section-quiz {
+  border-color: var(--color-accent);
+  border-width: 2px;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.quiz-header h2 {
+  margin: 0;
+}
+
+.quiz-progress {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.quiz-score {
+  text-align: center;
+  padding: 1rem;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.quiz-score.perfect {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success);
+}
+
+.quiz-question {
+  font-size: 1.1rem;
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text);
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.quiz-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  text-align: left;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: all 0.2s;
+}
+
+.quiz-option:hover:not(:disabled) {
+  border-color: var(--color-primary);
+}
+
+.quiz-option.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-glow);
+}
+
+.quiz-option.correct {
+  border-color: var(--color-success);
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.quiz-option.incorrect {
+  border-color: var(--color-error);
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.quiz-option:disabled {
+  cursor: not-allowed;
+}
+
+.option-letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--color-bg-tertiary);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.quiz-option.selected .option-letter {
+  background: var(--color-primary);
+  color: white;
+}
+
+.quiz-option.correct .option-letter {
+  background: var(--color-success);
+  color: white;
+}
+
+.quiz-option.incorrect .option-letter {
+  background: var(--color-error);
+  color: white;
+}
+
+.option-text {
+  flex: 1;
+}
+
+.option-indicator {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.quiz-result {
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+}
+
+.quiz-result.correct {
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid var(--color-success);
+}
+
+.quiz-result.incorrect {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid var(--color-error);
+}
+
+.quiz-result strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-result.correct strong {
+  color: var(--color-success);
+}
+
+.quiz-result.incorrect strong {
+  color: var(--color-error);
+}
+
+.quiz-result p {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.quiz-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.quiz-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quiz-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-bg-tertiary);
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.quiz-dot.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+.quiz-dot.correct {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.quiz-dot.incorrect {
+  border-color: var(--color-error);
+  background: var(--color-error);
+}
+
+/* ============================================================
+   SUMMARY SECTION
+   ============================================================ */
+.section-summary {
+  background: linear-gradient(135deg, var(--color-bg-secondary), var(--color-bg-tertiary));
+}
+
+.summary-points {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.summary-point {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--color-bg);
+  border-radius: var(--radius);
+}
+
+.point-number {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.point-content h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--color-text);
+}
+
+.point-content p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.next-lesson-preview {
+  border-top: 1px solid var(--color-border);
+  padding-top: 2rem;
+}
+
+.next-lesson-preview h3 {
+  margin: 0 0 1rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.next-lesson-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.next-lesson-card:hover {
+  border-color: var(--color-primary);
+  transform: translateX(4px);
+}
+
+.next-lesson-content h4 {
+  margin: 0 0 0.25rem 0;
+  color: var(--color-text);
+}
+
+.next-lesson-content p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.next-arrow {
+  font-size: 1.5rem;
+  color: var(--color-primary);
+}
+
+/* ============================================================
+   SANDBOX SECTION
+   ============================================================ */
+.section-sandbox {
+  text-align: center;
+  background: linear-gradient(135deg, var(--color-primary-glow), rgba(34, 211, 238, 0.1));
+  border: 2px solid var(--color-primary);
+}
+
+.sandbox-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.sandbox-description {
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text);
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.suggested-experiments {
+  background: var(--color-bg);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  margin: 0 auto 1.5rem auto;
+  max-width: 500px;
+  text-align: left;
+}
+
+.suggested-experiments h4 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.suggested-experiments ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.suggested-experiments li {
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .section {
+    padding: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparison-divider {
+    padding: 0.5rem 0;
+  }
+
+  .bloch-canvas {
+    width: 300px;
+    height: 300px;
+  }
+}

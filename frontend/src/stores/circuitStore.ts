@@ -22,6 +22,7 @@ interface CircuitState {
   updateGate: (gateId: string, updates: Partial<Gate>) => void;
   clearCircuit: () => void;
   loadCircuit: (circuit: QuantumCircuit) => void;
+  setCircuit: (circuit: QuantumCircuit) => void;
 
   setSelectedGate: (gate: GateType | null) => void;
   setHoveredStep: (step: number | null) => void;
@@ -48,7 +49,7 @@ const createEmptyCircuit = (): QuantumCircuit => ({
 
 export const useCircuitStore = create<CircuitState>()(
   persist(
-    (set, get) => ({
+    (set, _get) => ({
       // Initial state
       circuit: createEmptyCircuit(),
       simulationResult: null,
@@ -121,6 +122,13 @@ export const useCircuitStore = create<CircuitState>()(
       },
 
       loadCircuit: (circuit) => {
+        set({
+          circuit,
+          simulationResult: null,
+        });
+      },
+
+      setCircuit: (circuit) => {
         set({
           circuit,
           simulationResult: null,
