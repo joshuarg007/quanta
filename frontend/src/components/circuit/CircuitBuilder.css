@@ -13,23 +13,20 @@
   gap: 0;
 }
 
-.qubit-labels {
-  display: flex;
-  flex-direction: column;
-  position: sticky;
-  left: 0;
-  z-index: 1;
-}
-
 .qubit-label {
+  min-width: 70px;
   height: 48px;
   display: flex;
   align-items: center;
-  padding: 0 1rem;
+  padding: 0 0.75rem;
   font-family: var(--font-mono);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--color-text-muted);
   background: var(--color-bg-secondary);
+  border-right: 1px solid var(--color-border);
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .qubit-label sub {
@@ -51,7 +48,7 @@
 .wire {
   position: absolute;
   top: 50%;
-  left: 0;
+  left: 70px;
   right: 0;
   height: 2px;
   background: var(--color-border);
@@ -66,7 +63,8 @@
   justify-content: center;
   position: relative;
   z-index: 1;
-  border: 1px solid transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.06);
+  background: transparent;
   border-radius: var(--radius);
   transition: all 0.15s;
 }
@@ -112,7 +110,7 @@
 .step-labels {
   display: flex;
   margin-top: 0.5rem;
-  padding-left: 60px;
+  padding-left: 70px;
 }
 
 .step-label {
@@ -129,4 +127,81 @@
   border-radius: var(--radius);
   font-size: 0.9rem;
   color: var(--color-primary);
+}
+
+/* Gate wrapper for tooltip positioning */
+.gate-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Gate tooltip */
+.gate-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 220px;
+  padding: 0.75rem;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.gate-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-border);
+}
+
+.gate-tooltip-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.gate-tooltip-symbol {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.gate-tooltip-name {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.gate-tooltip-description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
 }

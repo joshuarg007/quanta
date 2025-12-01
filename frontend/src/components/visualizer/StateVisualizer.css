@@ -37,6 +37,20 @@
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.timeline-badge {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  background: var(--color-primary-glow);
+  color: var(--color-primary);
+  border-radius: 10px;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 500;
 }
 
 .probability-bars {

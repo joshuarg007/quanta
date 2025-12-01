@@ -1,4 +1,5 @@
-import type { SimulationResult } from '../../types/quantum';
+import type { SimulationResult, QuantumState } from '../../types/quantum';
+import { useCircuitStore } from '../../stores/circuitStore';
 import './StateVisualizer.css';
 
 interface StateVisualizerProps {
@@ -7,6 +8,8 @@ interface StateVisualizerProps {
 }
 
 export function StateVisualizer({ result, numQubits }: StateVisualizerProps) {
+  const { timelineStep, maxStep } = useCircuitStore();
+
   if (!result) {
     return (
       <div className="state-visualizer empty">
@@ -18,15 +21,26 @@ export function StateVisualizer({ result, numQubits }: StateVisualizerProps) {
     );
   }
 
-  const { finalState } = result;
+  // Use state from timeline if available, otherwise final state
+  let stateToShow: QuantumState;
+  let isTimelineActive = false;
+
+  if (result.stateHistory && result.stateHistory.length > 0) {
+    stateToShow = result.stateHistory[Math.min(timelineStep, result.stateHistory.length - 1)];
+    isTimelineActive = true;
+  } else {
+    stateToShow = result.finalState;
+  }
+
+  const { amplitudes, probabilities } = stateToShow;
   const numStates = Math.pow(2, numQubits);
 
   // Get top states by probability (for display)
-  const statesWithProbs = finalState.probabilities
+  const statesWithProbs = probabilities
     .map((prob, index) => ({
       basisState: index.toString(2).padStart(numQubits, '0'),
       probability: prob,
-      amplitude: finalState.amplitudes[index],
+      amplitude: amplitudes[index],
     }))
     .filter((s) => s.probability > 0.001) // Filter out near-zero
     .sort((a, b) => b.probability - a.probability);
@@ -65,9 +79,9 @@ export function StateVisualizer({ result, numQubits }: StateVisualizerProps) {
       {/* State vector (for small circuits) */}
       {numQubits <= 4 && (
         <div className="statevector-section">
-          <h4>State Vector</h4>
+          <h4>State Vector {isTimelineActive && <span className="timeline-badge">Step {timelineStep}/{maxStep}</span>}</h4>
           <div className="statevector">
-            {finalState.amplitudes.map((amp, index) => {
+            {amplitudes.map((amp, index) => {
               const basisState = index.toString(2).padStart(numQubits, '0');
               const magnitude = Math.sqrt(amp.real * amp.real + amp.imag * amp.imag);
               if (magnitude < 0.001) return null;

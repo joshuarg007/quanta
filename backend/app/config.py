@@ -3,6 +3,7 @@ QUANTA Backend Configuration
 """
 from pydantic_settings import BaseSettings
 from typing import List
+import secrets
 
 
 class Settings(BaseSettings):
@@ -24,8 +25,18 @@ class Settings(BaseSettings):
         "http://localhost:3000",
     ]
 
-    # Database (future)
-    database_url: str = "postgresql+asyncpg://quanta:quanta@localhost:5432/quanta"
+    # Database - SQLite for development
+    database_url: str = "sqlite:///./quanta.db"
+
+    # JWT Authentication
+    secret_key: str = secrets.token_urlsafe(32)  # Override in production!
+    algorithm: str = "HS256"
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+
+    # Account limits
+    free_circuits_limit: int = 3
+    pro_circuits_limit: int = 1000
 
     class Config:
         env_file = ".env"

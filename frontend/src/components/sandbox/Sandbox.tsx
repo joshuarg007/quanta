@@ -3,16 +3,28 @@ import { StateVisualizer } from '../visualizer/StateVisualizer';
 import { GatePalette } from '../circuit/GatePalette';
 import { CircuitControls } from '../circuit/CircuitControls';
 import { CodeEditor } from '../circuit/CodeEditor';
+import { TimeMachine } from '../timemachine/TimeMachine';
+import { AITutor } from '../tutor/AITutor';
+import { CollabPanel } from '../collab/CollabPanel';
 import { useCircuitStore } from '../../stores/circuitStore';
+import { useCollabStore } from '../../stores/collabStore';
 import './Sandbox.css';
 
 export function Sandbox() {
   const { circuit, simulationResult, isSimulating } = useCircuitStore();
+  const { isConnected, roomId } = useCollabStore();
 
   return (
     <div className="sandbox">
       <div className="sandbox-header">
-        <h1>Quantum Sandbox</h1>
+        <h1>
+          Quantum Sandbox
+          {isConnected && (
+            <span className="collab-badge">
+              Live Session: {roomId}
+            </span>
+          )}
+        </h1>
         <p>Build, simulate, and visualize quantum circuits</p>
       </div>
 
@@ -33,6 +45,11 @@ export function Sandbox() {
             <CircuitBuilder />
           </section>
 
+          {/* Time Machine */}
+          <section className="sandbox-timemachine">
+            <TimeMachine />
+          </section>
+
           {/* State visualization */}
           <section className="sandbox-visualization">
             <div className="section-header">
@@ -51,6 +68,12 @@ export function Sandbox() {
           <CodeEditor />
         </aside>
       </div>
+
+      {/* Floating AI Tutor */}
+      <AITutor />
+
+      {/* Floating Collaboration Panel */}
+      <CollabPanel />
     </div>
   );
 }

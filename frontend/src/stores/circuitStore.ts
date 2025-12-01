@@ -11,6 +11,12 @@ interface CircuitState {
   simulationResult: SimulationResult | null;
   isSimulating: boolean;
 
+  // Time Machine state
+  timelineStep: number;        // Current step in execution (0 = initial state)
+  isPlaying: boolean;          // Auto-advance through timeline
+  playbackSpeed: number;       // ms between steps
+  maxStep: number;             // Total steps in timeline
+
   // UI state
   selectedGate: GateType | null;
   hoveredStep: number | null;
@@ -29,6 +35,14 @@ interface CircuitState {
 
   setSimulationResult: (result: SimulationResult | null) => void;
   setIsSimulating: (isSimulating: boolean) => void;
+
+  // Time Machine actions
+  setTimelineStep: (step: number) => void;
+  stepForward: () => void;
+  stepBackward: () => void;
+  setIsPlaying: (playing: boolean) => void;
+  setPlaybackSpeed: (speed: number) => void;
+  resetTimeline: () => void;
 
   // Circuit metadata
   setCircuitName: (name: string) => void;
@@ -54,6 +68,13 @@ export const useCircuitStore = create<CircuitState>()(
       circuit: createEmptyCircuit(),
       simulationResult: null,
       isSimulating: false,
+
+      // Time Machine
+      timelineStep: 0,
+      isPlaying: false,
+      playbackSpeed: 500,
+      maxStep: 0,
+
       selectedGate: null,
       hoveredStep: null,
 
@@ -140,8 +161,28 @@ export const useCircuitStore = create<CircuitState>()(
       setHoveredStep: (step) => set({ hoveredStep: step }),
 
       // Simulation
-      setSimulationResult: (result) => set({ simulationResult: result }),
+      setSimulationResult: (result) => set({
+        simulationResult: result,
+        maxStep: result?.stateHistory?.length ?? 0,
+        timelineStep: result?.stateHistory?.length ?? 0, // Start at end (final state)
+        isPlaying: false,
+      }),
       setIsSimulating: (isSimulating) => set({ isSimulating }),
+
+      // Time Machine
+      setTimelineStep: (step) => set((state) => ({
+        timelineStep: Math.max(0, Math.min(step, state.maxStep)),
+        isPlaying: false,
+      })),
+      stepForward: () => set((state) => ({
+        timelineStep: Math.min(state.timelineStep + 1, state.maxStep),
+      })),
+      stepBackward: () => set((state) => ({
+        timelineStep: Math.max(state.timelineStep - 1, 0),
+      })),
+      setIsPlaying: (playing) => set({ isPlaying: playing }),
+      setPlaybackSpeed: (speed) => set({ playbackSpeed: speed }),
+      resetTimeline: () => set({ timelineStep: 0, isPlaying: false }),
 
       // Metadata
       setCircuitName: (name) => {

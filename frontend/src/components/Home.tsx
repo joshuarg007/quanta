@@ -1,8 +1,35 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthProvider';
 
 export function Home() {
+  const { user } = useAuth();
+
   return (
     <div className="home">
+      {/* Public navigation */}
+      <nav className="nav">
+        <div className="nav-brand">
+          <span className="nav-logo">◈</span>
+          <span className="nav-title">QUANTA</span>
+        </div>
+        <div className="nav-links">
+          {user ? (
+            <Link to="/sandbox" className="btn btn-primary">
+              Go to Dashboard
+            </Link>
+          ) : (
+            <>
+              <Link to="/login" className="nav-link">
+                Sign In
+              </Link>
+              <Link to="/signup" className="btn btn-primary">
+                Get Started
+              </Link>
+            </>
+          )}
+        </div>
+      </nav>
+
       <section className="hero">
         <h1 className="hero-title">
           <span className="hero-logo">◈</span>
