@@ -14,7 +14,7 @@ export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const from = (location.state as { from?: string })?.from || '/sandbox';
+  const from = (location.state as { from?: string })?.from || '/dashboard';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,10 +34,12 @@ export default function Login() {
   return (
     <div className="auth-page">
       <div className="auth-container">
+        <Link to="/" className="auth-back">
+          <span>←</span> Back to Home
+        </Link>
         <div className="auth-header">
           <div className="auth-logo">
-            <span className="logo-icon">&#x25C8;</span>
-            <span className="logo-text">QUANTA</span>
+            <img src="/logo-horizontal-64.png" alt="QUANTA" className="auth-logo-img" />
           </div>
           <h1>Welcome back</h1>
           <p>Sign in to continue to your quantum workspace</p>

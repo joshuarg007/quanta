@@ -1,21 +1,80 @@
 // Auth API for QUANTA
+// Uses HTTP-only cookies for secure token storage
 import { apiClient } from './client';
+
+// =============================================================================
+// TYPES
+// =============================================================================
+
+export interface Organization {
+  id: number;
+  name: string | null;
+  plan: 'free' | 'education' | 'research';
+  is_axion: boolean;
+}
 
 export interface User {
   id: number;
   email: string;
   name: string | null;
-  account_type: 'free' | 'pro' | 'student' | 'org_member';
-  is_student: boolean;
-  circuits_limit: number;
-  organization_id: number | null;
+  role: 'OWNER' | 'ADMIN' | 'INSTRUCTOR' | 'STUDENT' | 'RESEARCHER';
+  is_approved: boolean;
+  email_verified: boolean;
+  organization: Organization;
 }
 
-export interface TokenResponse {
+export interface UsageStats {
+  simulation_runs: {
+    current: number;
+    limit: number | 'unlimited';
+    percent: number;
+    remaining: number | 'unlimited';
+  };
+  circuits: {
+    current: number;
+    limit: number | 'unlimited';
+    percent: number;
+    remaining: number | 'unlimited';
+  };
+  storage_bytes: {
+    current: number;
+    limit: number | 'unlimited';
+    percent: number;
+    remaining: number | 'unlimited';
+  };
+  experiments: {
+    current: number;
+    limit: number | 'unlimited';
+    percent: number;
+    remaining: number | 'unlimited';
+  };
+  experiment_runs: {
+    current: number;
+    limit: number | 'unlimited';
+    percent: number;
+    remaining: number | 'unlimited';
+  };
+  plan: string;
+  resets_at: string | null;
+}
+
+export interface LoginResponse {
   access_token: string;
-  refresh_token: string;
   token_type: string;
   user: User;
+}
+
+export interface SignupResponse {
+  message: string;
+  email: string;
+  organization_id: number;
+  is_first_user: boolean;
+  requires_approval: boolean;
+}
+
+export interface MeResponse {
+  user: User;
+  usage: UsageStats;
 }
 
 export interface RegisterData {
@@ -24,126 +83,112 @@ export interface RegisterData {
   name?: string;
 }
 
-// Token storage
-let ACCESS_TOKEN: string | null = null;
-let REFRESH_TOKEN: string | null = null;
-
-try {
-  ACCESS_TOKEN = localStorage.getItem('access_token');
-  REFRESH_TOKEN = localStorage.getItem('refresh_token');
-} catch {
-  // SSR or localStorage unavailable
-}
-
-export function setTokens(access: string | null, refresh: string | null) {
-  ACCESS_TOKEN = access;
-  REFRESH_TOKEN = refresh;
-  try {
-    if (access) {
-      localStorage.setItem('access_token', access);
-    } else {
-      localStorage.removeItem('access_token');
-    }
-    if (refresh) {
-      localStorage.setItem('refresh_token', refresh);
-    } else {
-      localStorage.removeItem('refresh_token');
-    }
-  } catch {
-    // ignore
-  }
-}
-
-export function clearTokens() {
-  setTokens(null, null);
-}
-
-export function getAccessToken() {
-  return ACCESS_TOKEN;
-}
-
-// Add auth header to requests
-apiClient.interceptors.request.use((config) => {
-  if (ACCESS_TOKEN) {
-    config.headers.Authorization = `Bearer ${ACCESS_TOKEN}`;
-  }
-  return config;
-});
-
-// Handle 401 errors and try to refresh token
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (error.response?.status === 401 && !originalRequest._retry && REFRESH_TOKEN) {
-      originalRequest._retry = true;
-
-      try {
-        const response = await apiClient.post<TokenResponse>('/api/auth/refresh', {
-          refresh_token: REFRESH_TOKEN,
-        });
-
-        setTokens(response.data.access_token, response.data.refresh_token);
-        originalRequest.headers.Authorization = `Bearer ${response.data.access_token}`;
-
-        return apiClient(originalRequest);
-      } catch {
-        clearTokens();
-        return Promise.reject(error);
-      }
-    }
-
-    return Promise.reject(error);
-  }
-);
+// =============================================================================
+// AUTH API
+// =============================================================================
 
 export const authApi = {
-  register: async (data: RegisterData): Promise<TokenResponse> => {
-    const response = await apiClient.post<TokenResponse>('/api/auth/register', data);
-    setTokens(response.data.access_token, response.data.refresh_token);
+  /**
+   * Register a new user.
+   * Creates org if needed, sets auth cookies.
+   */
+  register: async (data: RegisterData): Promise<SignupResponse> => {
+    const response = await apiClient.post<SignupResponse>('/api/orgs/signup', data);
     return response.data;
   },
 
-  login: async (email: string, password: string): Promise<TokenResponse> => {
+  /**
+   * Login with email and password.
+   * Sets HTTP-only auth cookies.
+   */
+  login: async (email: string, password: string): Promise<LoginResponse> => {
     const formData = new URLSearchParams();
     formData.append('username', email);
     formData.append('password', password);
 
-    const response = await apiClient.post<TokenResponse>('/api/auth/login', formData, {
+    const response = await apiClient.post<LoginResponse>('/api/auth/login', formData, {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     });
-    setTokens(response.data.access_token, response.data.refresh_token);
     return response.data;
   },
 
+  /**
+   * Logout - clears auth cookies.
+   */
   logout: async (): Promise<void> => {
-    try {
-      await apiClient.post('/api/auth/logout');
-    } finally {
-      clearTokens();
-    }
+    await apiClient.post('/api/auth/logout');
   },
 
-  me: async (): Promise<User> => {
-    const response = await apiClient.get<User>('/api/auth/me');
+  /**
+   * Get current user info and usage stats.
+   * Uses cookies for authentication.
+   */
+  me: async (): Promise<MeResponse> => {
+    const response = await apiClient.get<MeResponse>('/api/auth/me');
     return response.data;
   },
 
-  refresh: async (): Promise<TokenResponse | null> => {
-    if (!REFRESH_TOKEN) return null;
-
+  /**
+   * Refresh tokens using refresh cookie.
+   */
+  refresh: async (): Promise<LoginResponse | null> => {
     try {
-      const response = await apiClient.post<TokenResponse>('/api/auth/refresh', {
-        refresh_token: REFRESH_TOKEN,
-      });
-      setTokens(response.data.access_token, response.data.refresh_token);
+      const response = await apiClient.post<LoginResponse>('/api/auth/refresh');
       return response.data;
     } catch {
-      clearTokens();
       return null;
     }
+  },
+};
+
+// =============================================================================
+// ORGANIZATION API
+// =============================================================================
+
+export interface OrgUsageResponse {
+  organization: {
+    id: number;
+    name: string | null;
+    domain: string;
+    plan: string;
+    subscription_status: string;
+    trial_ends_at: string | null;
+    is_axion: boolean;
+    created_at: string;
+  };
+  usage: UsageStats;
+}
+
+export const orgApi = {
+  /**
+   * Get current organization and usage.
+   */
+  getCurrent: async (): Promise<OrgUsageResponse> => {
+    const response = await apiClient.get<OrgUsageResponse>('/api/orgs/current');
+    return response.data;
+  },
+
+  /**
+   * List users in current organization.
+   */
+  listUsers: async (): Promise<User[]> => {
+    const response = await apiClient.get<User[]>('/api/orgs/users');
+    return response.data;
+  },
+
+  /**
+   * Approve a user (OWNER/ADMIN only).
+   */
+  approveUser: async (userId: number): Promise<void> => {
+    await apiClient.post(`/api/orgs/users/${userId}/approve`);
+  },
+
+  /**
+   * Update user role (OWNER only).
+   */
+  updateUserRole: async (userId: number, role: string): Promise<void> => {
+    await apiClient.put(`/api/orgs/users/${userId}/role`, { role });
   },
 };

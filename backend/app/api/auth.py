@@ -1,42 +1,62 @@
-"""Authentication API routes."""
-from datetime import datetime
+"""
+Authentication API routes.
+
+Handles login, logout, token refresh, and current user info.
+Signup is handled in orgs.py (creates org + user together).
+"""
+import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, Cookie
 from fastapi.security import OAuth2PasswordRequestForm
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
-from app.db.models import User, AccountType
+from app.db.models import User, Organization
 from app.core.security import (
     verify_password,
-    get_password_hash,
     create_access_token,
     create_refresh_token,
-    verify_token,
+    verify_refresh_token,
+    set_auth_cookies,
+    clear_auth_cookies,
+    check_account_lockout,
+    record_failed_login,
+    record_successful_login,
+    get_client_ip,
     get_current_user_required,
+    is_axion_user,
 )
-from app.config import settings
+from app.core.plans import get_usage_summary
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
-# Pydantic models
-class UserCreate(BaseModel):
-    email: EmailStr
-    password: str
-    name: Optional[str] = None
+# =============================================================================
+# RESPONSE MODELS
+# =============================================================================
+
+class OrganizationResponse(BaseModel):
+    id: int
+    name: Optional[str]
+    plan: str
+    is_axion: bool
+
+    class Config:
+        from_attributes = True
 
 
 class UserResponse(BaseModel):
     id: int
     email: str
     name: Optional[str]
-    account_type: str
-    is_student: bool
-    circuits_limit: int
-    organization_id: Optional[int]
+    role: str
+    is_approved: bool
+    email_verified: bool
+    organization: OrganizationResponse
 
     class Config:
         from_attributes = True
@@ -44,122 +64,128 @@ class UserResponse(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
-    refresh_token: str
     token_type: str = "bearer"
     user: UserResponse
 
 
-class RefreshRequest(BaseModel):
-    refresh_token: str
+class MeResponse(BaseModel):
+    user: UserResponse
+    usage: dict
 
 
-def is_edu_email(email: str) -> bool:
-    """Check if email is from educational domain."""
-    return email.lower().endswith(".edu")
-
-
-@router.post("/register", response_model=TokenResponse)
-async def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    """Register a new user."""
-    # Check if email already exists
-    existing_user = db.query(User).filter(User.email == user_data.email.lower()).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
-        )
-
-    # Determine account type
-    is_student = is_edu_email(user_data.email)
-    account_type = AccountType.STUDENT if is_student else AccountType.FREE
-    circuits_limit = settings.pro_circuits_limit if is_student else settings.free_circuits_limit
-
-    # Create user
-    user = User(
-        email=user_data.email.lower(),
-        hashed_password=get_password_hash(user_data.password),
-        name=user_data.name,
-        account_type=account_type,
-        is_student=is_student,
-        circuits_limit=circuits_limit,
-    )
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-
-    # Create tokens
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
-
-    return TokenResponse(
-        access_token=access_token,
-        refresh_token=refresh_token,
-        user=UserResponse(
-            id=user.id,
-            email=user.email,
-            name=user.name,
-            account_type=user.account_type.value,
-            is_student=user.is_student,
-            circuits_limit=user.circuits_limit,
-            organization_id=user.organization_id,
-        )
-    )
-
+# =============================================================================
+# LOGIN
+# =============================================================================
 
 @router.post("/login", response_model=TokenResponse)
-async def login(
+def login(
+    request: Request,
+    response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
-    """Login and get access tokens."""
-    user = db.query(User).filter(User.email == form_data.username.lower()).first()
+    """
+    Login with email and password.
 
+    Sets HTTP-only cookies for access and refresh tokens.
+    Also returns access token in response body for clients that prefer headers.
+    """
+    client_ip = get_client_ip(request)
+    email = form_data.username.lower().strip()
+
+    # Find user
+    user = db.query(User).filter(User.email == email).first()
+
+    # Check lockout BEFORE attempting auth
+    if user:
+        is_locked, seconds_remaining = check_account_lockout(user)
+        if is_locked:
+            minutes = (seconds_remaining // 60) + 1
+            logger.warning(f"Login attempt on locked account: email={email}, ip={client_ip}")
+            raise HTTPException(
+                status_code=status.HTTP_423_LOCKED,
+                detail=f"Account temporarily locked. Try again in {minutes} minutes."
+            )
+
+    # Verify credentials
     if not user or not verify_password(form_data.password, user.hashed_password):
+        if user:
+            record_failed_login(db, user, client_ip)
+        else:
+            logger.info(f"Failed login (unknown user): email={email}, ip={client_ip}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
+            detail="Incorrect email or password"
         )
 
-    # Update last login
-    user.last_login = datetime.utcnow()
-    db.commit()
+    # Check user has an organization
+    if not user.organization_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User not associated with an organization"
+        )
+
+    # Record successful login
+    record_successful_login(db, user, client_ip)
 
     # Create tokens
-    access_token = create_access_token(data={"sub": str(user.id)})
-    refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    access_token = create_access_token(user.email)
+    refresh_token = create_refresh_token(user.email)
+
+    # Set cookies
+    set_auth_cookies(response, access_token, refresh_token)
+
+    # Get organization
+    org = db.query(Organization).filter(Organization.id == user.organization_id).first()
 
     return TokenResponse(
         access_token=access_token,
-        refresh_token=refresh_token,
         user=UserResponse(
             id=user.id,
             email=user.email,
             name=user.name,
-            account_type=user.account_type.value,
-            is_student=user.is_student,
-            circuits_limit=user.circuits_limit,
-            organization_id=user.organization_id,
+            role=user.role,
+            is_approved=user.is_approved,
+            email_verified=user.email_verified,
+            organization=OrganizationResponse(
+                id=org.id,
+                name=org.name,
+                plan=org.plan,
+                is_axion=is_axion_user(user),
+            )
         )
     )
 
 
+# =============================================================================
+# TOKEN REFRESH
+# =============================================================================
+
 @router.post("/refresh", response_model=TokenResponse)
-async def refresh_token(
-    data: RefreshRequest,
-    db: Session = Depends(get_db)
+def refresh_tokens(
+    response: Response,
+    db: Session = Depends(get_db),
+    refresh_cookie: Optional[str] = Cookie(default=None, alias="refresh_token"),
 ):
-    """Refresh access token using refresh token."""
-    payload = verify_token(data.refresh_token, token_type="refresh")
-    if not payload:
+    """
+    Refresh access token using refresh token from cookie.
+    """
+    if not refresh_cookie:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="No refresh token"
+        )
+
+    # Verify refresh token
+    email = verify_refresh_token(refresh_cookie)
+    if not email:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token"
         )
 
-    user_id = payload.get("sub")
-    user = db.query(User).filter(User.id == int(user_id)).first()
-
+    # Get user
+    user = db.query(User).filter(User.email == email).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -167,39 +193,129 @@ async def refresh_token(
         )
 
     # Create new tokens
-    access_token = create_access_token(data={"sub": str(user.id)})
-    new_refresh_token = create_refresh_token(data={"sub": str(user.id)})
+    new_access_token = create_access_token(user.email)
+    new_refresh_token = create_refresh_token(user.email)
+
+    # Set cookies
+    set_auth_cookies(response, new_access_token, new_refresh_token)
+
+    # Get organization
+    org = db.query(Organization).filter(Organization.id == user.organization_id).first()
 
     return TokenResponse(
-        access_token=access_token,
-        refresh_token=new_refresh_token,
+        access_token=new_access_token,
         user=UserResponse(
             id=user.id,
             email=user.email,
             name=user.name,
-            account_type=user.account_type.value,
-            is_student=user.is_student,
-            circuits_limit=user.circuits_limit,
-            organization_id=user.organization_id,
+            role=user.role,
+            is_approved=user.is_approved,
+            email_verified=user.email_verified,
+            organization=OrganizationResponse(
+                id=org.id,
+                name=org.name,
+                plan=org.plan,
+                is_axion=is_axion_user(user),
+            )
         )
     )
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_me(user: User = Depends(get_current_user_required)):
-    """Get current user info."""
-    return UserResponse(
-        id=user.id,
-        email=user.email,
-        name=user.name,
-        account_type=user.account_type.value,
-        is_student=user.is_student,
-        circuits_limit=user.circuits_limit,
-        organization_id=user.organization_id,
+# =============================================================================
+# LOGOUT
+# =============================================================================
+
+@router.post("/logout")
+def logout(response: Response):
+    """
+    Logout by clearing authentication cookies.
+
+    Client should also discard any stored tokens.
+    """
+    clear_auth_cookies(response)
+    return {"ok": True}
+
+
+# =============================================================================
+# CURRENT USER
+# =============================================================================
+
+@router.get("/me", response_model=MeResponse)
+def get_me(
+    user: User = Depends(get_current_user_required),
+    db: Session = Depends(get_db),
+):
+    """
+    Get current user info and usage stats.
+    """
+    org = db.query(Organization).filter(Organization.id == user.organization_id).first()
+
+    return MeResponse(
+        user=UserResponse(
+            id=user.id,
+            email=user.email,
+            name=user.name,
+            role=user.role,
+            is_approved=user.is_approved,
+            email_verified=user.email_verified,
+            organization=OrganizationResponse(
+                id=org.id,
+                name=org.name,
+                plan=org.plan,
+                is_axion=is_axion_user(user),
+            )
+        ),
+        usage=get_usage_summary(org),
     )
 
 
-@router.post("/logout")
-async def logout():
-    """Logout (client should discard tokens)."""
-    return {"message": "Logged out successfully"}
+# =============================================================================
+# EMAIL VERIFICATION
+# =============================================================================
+
+@router.post("/verify-email/send")
+def send_verification_email_endpoint(
+    user: User = Depends(get_current_user_required),
+    db: Session = Depends(get_db),
+):
+    """
+    Send (or resend) email verification to current user.
+    """
+    if user.email_verified:
+        return {"message": "Email already verified"}
+
+    from app.services.email import send_verification_email
+
+    success = send_verification_email(user, db)
+
+    if success:
+        return {"message": "Verification email sent"}
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send verification email"
+        )
+
+
+@router.post("/verify-email/{token}")
+def verify_email(
+    token: str,
+    db: Session = Depends(get_db),
+):
+    """
+    Verify email address using token from email link.
+    """
+    from app.services.email import verify_email_token
+
+    user = verify_email_token(token, db)
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification token"
+        )
+
+    return {
+        "message": "Email verified successfully",
+        "email": user.email,
+    }

@@ -50,7 +50,23 @@
   padding: 1rem 0.75rem;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+}
+
+.nav-section {
+  display: flex;
+  flex-direction: column;
   gap: 0.25rem;
+}
+
+.nav-section-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  padding: 0.5rem 1rem 0.25rem;
 }
 
 .sidebar-link {
@@ -62,6 +78,7 @@
   text-decoration: none;
   border-radius: var(--radius);
   transition: all 0.2s;
+  font-size: 0.9rem;
 }
 
 .sidebar-link:hover {
@@ -80,60 +97,47 @@
   text-align: center;
 }
 
-/* User section */
+/* Sidebar Footer */
 .sidebar-footer {
-  padding: 1rem;
+  padding: 0.75rem;
   border-top: 1px solid var(--color-border);
 }
 
-.user-info {
-  margin-bottom: 0.75rem;
+.settings-link {
+  margin: 0;
 }
 
-.user-email {
-  font-size: 0.9rem;
-  color: var(--color-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Main wrapper with top bar */
+.main-wrapper {
+  flex: 1;
+  margin-left: 240px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.user-plan {
-  font-size: 0.8rem;
-  color: var(--color-primary);
-  margin-top: 0.25rem;
+/* Top bar */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 40;
 }
 
-.circuits-count {
-  font-size: 0.75rem;
-  color: var(--color-text-muted);
-  margin-top: 0.25rem;
-}
-
-.logout-btn {
-  width: 100%;
-  padding: 0.5rem 1rem;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  color: var(--color-text-muted);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.logout-btn:hover {
-  color: var(--color-error);
-  border-color: var(--color-error);
-  background: rgba(239, 68, 68, 0.1);
+.top-bar-spacer {
+  flex: 1;
 }
 
 /* Main content area */
 .main-content {
   flex: 1;
-  margin-left: 240px;
   padding: 1.5rem;
-  min-height: 100vh;
+  min-height: 0;
 }
 
 /* Responsive */
@@ -160,6 +164,17 @@
     order: 3;
     width: 100%;
     justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .nav-section {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  .nav-section-label {
+    display: none;
   }
 
   .sidebar-link {
@@ -172,12 +187,19 @@
     order: 2;
   }
 
-  .main-content {
+  .main-wrapper {
     margin-left: 0;
+  }
+
+  .main-content {
     padding: 1rem;
   }
 
   .app-layout {
     flex-direction: column;
+  }
+
+  .top-bar {
+    padding: 0.5rem 1rem;
   }
 }

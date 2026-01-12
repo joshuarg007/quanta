@@ -1,28 +1,9 @@
 // AppLayout component with sidebar for authenticated users
 import { NavLink, Outlet } from 'react-router-dom';
-import { useAuth } from '../context/AuthProvider';
+import AccountMenu from './AccountMenu';
 import './AppLayout.css';
 
 export default function AppLayout() {
-  const { user, logout } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  const accountTypeLabel = () => {
-    switch (user?.account_type) {
-      case 'student':
-        return 'Student (Free Pro)';
-      case 'pro':
-        return 'Pro';
-      case 'org_member':
-        return 'Organization';
-      default:
-        return 'Free';
-    }
-  };
-
   return (
     <div className="app-layout">
       <aside className="sidebar">
@@ -34,48 +15,77 @@ export default function AppLayout() {
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink
-            to="/sandbox"
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <span className="link-icon">&#x25A1;</span>
-            <span>Sandbox</span>
-          </NavLink>
-          <NavLink
-            to="/learn"
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <span className="link-icon">&#x25B6;</span>
-            <span>Learn</span>
-          </NavLink>
-          <NavLink
-            to="/circuits"
-            className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-          >
-            <span className="link-icon">&#x29BF;</span>
-            <span>My Circuits</span>
-          </NavLink>
+          <div className="nav-section">
+            <span className="nav-section-label">Workspace</span>
+            <NavLink
+              to="/sandbox"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x25A1;</span>
+              <span>Sandbox</span>
+            </NavLink>
+            <NavLink
+              to="/learn"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x25B6;</span>
+              <span>Learn</span>
+            </NavLink>
+            <NavLink
+              to="/experiments"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x2697;</span>
+              <span>Experiments</span>
+            </NavLink>
+            <NavLink
+              to="/circuits"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x29BF;</span>
+              <span>My Circuits</span>
+            </NavLink>
+          </div>
+
+          <div className="nav-section">
+            <span className="nav-section-label">Help</span>
+            <NavLink
+              to="/faq"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x2753;</span>
+              <span>FAQ</span>
+            </NavLink>
+            <NavLink
+              to="/support"
+              className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+            >
+              <span className="link-icon">&#x2709;</span>
+              <span>Support</span>
+            </NavLink>
+          </div>
         </nav>
 
         <div className="sidebar-footer">
-          <div className="user-info">
-            <div className="user-email">{user?.email}</div>
-            <div className="user-plan">{accountTypeLabel()}</div>
-            {user?.account_type === 'free' && (
-              <div className="circuits-count">
-                Circuits: {user.circuits_limit} limit
-              </div>
-            )}
-          </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            Sign Out
-          </button>
+          <NavLink
+            to="/settings"
+            className={({ isActive }) => `sidebar-link settings-link ${isActive ? 'active' : ''}`}
+          >
+            <span className="link-icon">&#x2699;</span>
+            <span>Settings</span>
+          </NavLink>
         </div>
       </aside>
 
-      <main className="main-content">
-        <Outlet />
-      </main>
+      <div className="main-wrapper">
+        <header className="top-bar">
+          <div className="top-bar-spacer" />
+          <AccountMenu />
+        </header>
+        <main className="main-content">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

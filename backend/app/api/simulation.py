@@ -1,16 +1,36 @@
-"""Simulation API endpoints."""
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+"""
+Simulation API endpoints.
+
+Cost Control: Simulation runs are limited per organization per month.
+- check_simulation_limit() before running
+- increment_simulation_count() after successful run
+- Monthly counter resets automatically
+"""
 import time
+from typing import List, Optional
+
+from fastapi import APIRouter, HTTPException, Depends, status
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
 from app.simulation.engine import QuantumSimulator
 from app.config import settings
+from app.db.database import get_db
+from app.db.models import User, Organization
+from app.core.security import get_current_user, get_current_approved_user
+from app.core.plans import (
+    check_simulation_limit,
+    increment_simulation_count,
+    LimitExceededError,
+)
 
 router = APIRouter()
 
 
-# Request/Response models
+# =============================================================================
+# REQUEST/RESPONSE MODELS
+# =============================================================================
+
 class Gate(BaseModel):
     """Gate in a quantum circuit."""
     id: str
@@ -63,14 +83,69 @@ class SimulationResult(BaseModel):
 simulator = QuantumSimulator(max_qubits=settings.max_qubits)
 
 
+# =============================================================================
+# HELPER: Check limits and increment count
+# =============================================================================
+
+def _check_and_increment_simulation(user: Optional[User], db: Session) -> Optional[Organization]:
+    """
+    Check simulation limit for user's org and prepare to increment.
+
+    Returns org if authenticated (for incrementing after success).
+    For unauthenticated users, a stricter global limit could be applied here.
+
+    Cost Control: This is where we enforce the hard limit.
+    """
+    if not user:
+        # Unauthenticated - could implement IP-based rate limiting here
+        # For now, allow limited anonymous simulations (handled by rate limiting middleware)
+        return None
+
+    org = db.query(Organization).filter(Organization.id == user.organization_id).first()
+    if not org:
+        raise HTTPException(status_code=500, detail="Organization not found")
+
+    # COST CONTROL: Check limit BEFORE running simulation
+    try:
+        check_simulation_limit(org)
+    except LimitExceededError as e:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=e.message,
+        )
+
+    return org
+
+
+def _increment_simulation_count(org: Optional[Organization], db: Session) -> None:
+    """Increment simulation count after successful run."""
+    if org:
+        increment_simulation_count(db, org)
+
+
+# =============================================================================
+# ENDPOINTS
+# =============================================================================
+
 @router.post("/simulate", response_model=SimulationResult)
-async def simulate_circuit(request: SimulationRequest):
-    """Run a full circuit simulation with measurement."""
+def simulate_circuit(
+    request: SimulationRequest,
+    user: Optional[User] = Depends(get_current_user),  # Optional auth
+    db: Session = Depends(get_db),
+):
+    """
+    Run a full circuit simulation with measurement.
+
+    Cost Control: Counts against monthly simulation limit.
+    """
     if request.circuit.numQubits > settings.max_qubits:
         raise HTTPException(
             status_code=400,
             detail=f"Circuit exceeds maximum qubit limit ({settings.max_qubits})"
         )
+
+    # COST CONTROL: Check limit before running
+    org = _check_and_increment_simulation(user, db)
 
     start_time = time.time()
 
@@ -81,6 +156,9 @@ async def simulate_circuit(request: SimulationRequest):
             shots=request.shots,
         )
         execution_time = (time.time() - start_time) * 1000  # ms
+
+        # COST CONTROL: Increment count AFTER successful simulation
+        _increment_simulation_count(org, db)
 
         return SimulationResult(
             circuitId=request.circuit.id,
@@ -97,13 +175,24 @@ async def simulate_circuit(request: SimulationRequest):
 
 
 @router.post("/simulate/statevector", response_model=SimulationResult)
-async def simulate_statevector(request: SimulationRequest):
-    """Get the statevector without measurement."""
+def simulate_statevector(
+    request: SimulationRequest,
+    user: Optional[User] = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get the statevector without measurement.
+
+    Cost Control: Counts against monthly simulation limit.
+    """
     if request.circuit.numQubits > settings.max_qubits:
         raise HTTPException(
             status_code=400,
             detail=f"Circuit exceeds maximum qubit limit ({settings.max_qubits})"
         )
+
+    # COST CONTROL: Check limit before running
+    org = _check_and_increment_simulation(user, db)
 
     start_time = time.time()
 
@@ -113,6 +202,9 @@ async def simulate_statevector(request: SimulationRequest):
             gates=request.circuit.gates,
         )
         execution_time = (time.time() - start_time) * 1000
+
+        # COST CONTROL: Increment count AFTER successful simulation
+        _increment_simulation_count(org, db)
 
         return SimulationResult(
             circuitId=request.circuit.id,
@@ -128,13 +220,24 @@ async def simulate_statevector(request: SimulationRequest):
 
 
 @router.post("/simulate/steps", response_model=SimulationResult)
-async def simulate_steps(request: SimulationRequest):
-    """Simulate circuit step-by-step for visualization."""
+def simulate_steps(
+    request: SimulationRequest,
+    user: Optional[User] = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Simulate circuit step-by-step for visualization.
+
+    Cost Control: Counts against monthly simulation limit.
+    """
     if request.circuit.numQubits > settings.max_qubits:
         raise HTTPException(
             status_code=400,
             detail=f"Circuit exceeds maximum qubit limit ({settings.max_qubits})"
         )
+
+    # COST CONTROL: Check limit before running
+    org = _check_and_increment_simulation(user, db)
 
     start_time = time.time()
 
@@ -155,6 +258,9 @@ async def simulate_steps(request: SimulationRequest):
             for state in result["history"]
         ]
 
+        # COST CONTROL: Increment count AFTER successful simulation
+        _increment_simulation_count(org, db)
+
         return SimulationResult(
             circuitId=request.circuit.id,
             finalState=state_history[-1] if state_history else QuantumState(
@@ -167,3 +273,31 @@ async def simulate_steps(request: SimulationRequest):
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# USAGE INFO ENDPOINT
+# =============================================================================
+
+@router.get("/simulate/usage")
+def get_simulation_usage(
+    user: User = Depends(get_current_approved_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Get current simulation usage stats for the user's organization.
+    """
+    org = db.query(Organization).filter(Organization.id == user.organization_id).first()
+    if not org:
+        raise HTTPException(status_code=500, detail="Organization not found")
+
+    limit = org.simulation_runs_limit
+    current = org.simulation_runs_this_month
+
+    return {
+        "current": current,
+        "limit": limit if limit != -1 else "unlimited",
+        "remaining": (limit - current) if limit > 0 else "unlimited",
+        "percent_used": (current / limit * 100) if limit > 0 else 0,
+        "resets_at": org.usage_month_reset.isoformat() if org.usage_month_reset else None,
+    }
