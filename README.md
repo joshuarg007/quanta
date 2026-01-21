@@ -156,3 +156,4 @@ QUANTA is developed by [Axion Deep Labs](https://axiondeep.com) and gifted pro b
 ## License
 
 MIT License — See [LICENSE](LICENSE) for details.
+<!-- v1 -->
