@@ -74,6 +74,14 @@ export default function AppLayout() {
             <span className="link-icon">&#x2699;</span>
             <span>Settings</span>
           </NavLink>
+          <a
+            href="https://www.axiondeep.com"
+            target="_blank"
+            rel="noopener"
+            className="built-by-link"
+          >
+            Built by Axion Deep Labs
+          </a>
         </div>
       </aside>
 
